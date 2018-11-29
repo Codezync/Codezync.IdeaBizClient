@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using RestSharp;
 using System.Configuration;
 using Newtonsoft.Json;
+using Codezync.IdeaBizClient;
 
 namespace IdeaBizSms
 {
@@ -14,11 +15,9 @@ namespace IdeaBizSms
     {
         protected RestClient client;
         protected string IdeaMartApiCallbase { get; }
-        public ApiRequestGenarator()
+        public ApiRequestGenarator(string IdeaMartApiCallbase)
         {
-
-            IdeaMartApiCallbase = ConfigurationManager.AppSettings["IdeaMartApiCallbase"];
-            client = new RestClient(IdeaMartApiCallbase);
+             client = new RestClient(IdeaMartApiCallbase);
 
         }
 
@@ -46,6 +45,14 @@ namespace IdeaBizSms
             return result;
 
 
+        }
+
+        public Dictionary<string, string> GetCommonHeaders(string token) {
+            Dictionary<string, string> headers = new Dictionary<string, string>();
+            headers.Add("Content-Type", "application/json");
+            headers.Add("Authorization", $"Bearer {token}");
+            headers.Add("Accept", "application/json");
+            return headers;
         }
     }
 }
