@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiRequestGenarator.cs" />
+    <Compile Include="IdeaMartBaseModel.cs" />
     <Compile Include="Services\PinSubscriptionService.cs" />
     <Compile Include="Services\SendSMSService.cs" />
     <Compile Include="Utils\CustomJsonSerializer.cs" />
