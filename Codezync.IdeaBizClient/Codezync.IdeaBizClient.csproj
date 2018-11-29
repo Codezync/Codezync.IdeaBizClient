@@ -50,11 +50,16 @@
   <ItemGroup>
     <Compile Include="ApiRequestGenarator.cs" />
     <Compile Include="IdeaMartBaseModel.cs" />
+    <Compile Include="Services\PinSubscriptionService.cs" />
+    <Compile Include="Services\SendSMSService.cs" />
+    <Compile Include="Utils\CustomJsonSerializer.cs" />
+    <Compile Include="Services\IdeaBizClientBase.cs" />
+    <Compile Include="Models\IdeaMartAuthModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\SMSSubcriptionService.cs" />
+    <Compile Include="Utils\Utilities.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
