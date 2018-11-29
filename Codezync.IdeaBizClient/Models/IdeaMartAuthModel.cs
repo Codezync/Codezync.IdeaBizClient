@@ -95,6 +95,29 @@ namespace Codezync.IdeaBizClient.Models
         public string Description { get; set; }
     }
 
+    public class ResponseBaseModel
+    {
+
+        [JsonProperty("statusCode")]
+        public string StatusCode { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+    }
+    public class ResponseDataBaseModel
+    {
+        [JsonProperty("serverRef")]
+        public string ServerRef { get; set; }
+
+        [JsonProperty("status")]
+        public string Status { get; set; }
+
+        [JsonProperty("msisdn")]
+        public string PhoneNumber { get; set; }
+    }
+
+
+
     public class SubscriptionRequestModel
     {
 
@@ -108,22 +131,13 @@ namespace Codezync.IdeaBizClient.Models
         public string Msisdn { get; set; }
     }
 
-    public class SubscriptionModel
+    public class SubscriptionModel : ResponseDataBaseModel
     {
-        [JsonProperty("msisdn")]
-        public string Method { get; set; }
 
         [JsonProperty("serviceID")]
         public string ServiceID { get; set; }
 
-        [JsonProperty("serverRef")]
-        public string ServerRef { get; set; }
 
-        [JsonProperty("status")]
-        public string Status { get; set; }
-
-        [JsonProperty("msisdn")]
-        public string Msisdn { get; set; }
     }
 
     public class SubscriptionResponseModel
@@ -150,5 +164,26 @@ namespace Codezync.IdeaBizClient.Models
     {
         public string Status { get; set; }
         public string ServerRef { get; set; }
+    }
+
+    public class PaymentResponseModel : ResponseBaseModel
+    {
+        [JsonProperty("data")]
+        public PaymentRequest Data { get; set; }
+    }
+
+    public class PaymentRequest : ResponseDataBaseModel
+    {
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("taxable")]
+        public bool Taxable { get; set; }
+        [JsonProperty("callbackURL")]
+        public string CallBackUrl { get; set; }
+        [JsonProperty("txnRef")]
+        public string Transactionreference { get; set; }
+        [JsonProperty("amount")]
+        public double Amount { get; set; }
+
     }
 }

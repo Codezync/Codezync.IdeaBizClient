@@ -1,4 +1,6 @@
 ﻿using Codezync.IdeaBizClient.Models;
+using Codezync.IdeaBizClient.Properties;
+using IdeaBizSms;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -17,10 +19,13 @@ namespace Codezync.IdeaBizClient.Services
         private string IdeaMartPinSubscriptionEndPoint { get; }
         private string IdeaMartPinValidateEndPoint { get; }
 
+        private ApiRequestGenarator request;
+
         public PinSubscription()
         {
             IdeaMartPinSubscriptionEndPoint = ConfigurationManager.AppSettings["IdeaMartPinSubscriptionEndPoint"];
             IdeaMartPinValidateEndPoint = ConfigurationManager.AppSettings["IdeaMartPinValidateEndPoint"];
+            request = new ApiRequestGenarator(IdeaMartApiCallbase);
             Authenticate();
         }
 
@@ -28,68 +33,50 @@ namespace Codezync.IdeaBizClient.Services
         public ActivityResult Subscribe(string number, string method = SUBSCRIPTION_METHOD)
         {
 
-            var request = new RestRequest(IdeaMartPinSubscriptionEndPoint, Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Authorization", $"Bearer {AuthModel.AccessToken}");
-            request.AddHeader("Accept", "application/json");
-
             var subscriptionRequest = new SubscriptionRequestModel
             {
                 Method = method,
                 Msisdn = number
             };
 
-            request.JsonSerializer = new CustomJsonSerializer();
-            request.AddJsonBody(subscriptionRequest);
+            var response = request.RequestApi<SubscriptionRequestModel, SubscriptionResponseModel>(subscriptionRequest, request.GetCommonHeaders(AuthModel.AccessToken), null, Method.POST, IdeaMartPinSubscriptionEndPoint);
 
             var res = new ActivityResult();
 
-            //var response = client.Execute(request);
-            var response = client.Execute<SubscriptionResponseModel>(request);
-
-            if (response.Data.StatusCode == "SUCCESS")
+            if (response.StatusCode == IdeaBizResource.SUCCESS)
             {
-                res.Status = response.Data.StatusCode;
-                res.ServerRef = response.Data.Data.ServerRef;
+                res.Status = response.StatusCode;
+                res.ServerRef = response.Data.ServerRef;
             }
             else
             {
-                res.Status = response.Data.Message;
+                res.Status = response.Message;
             }
-
             return res;
 
         }
 
         public ActivityResult ValidatePin(string pin, string serverRef)
         {
-            var flag = false;
-            var request = new RestRequest(IdeaMartPinValidateEndPoint, Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Authorization", $"Bearer {AuthModel.AccessToken}");
-            request.AddHeader("Accept", "application/json");
 
             var pinVerification = new PinVerificationModel
             {
                 Pin = pin,
                 ServerRef = serverRef
             };
-            request.JsonSerializer = new CustomJsonSerializer();
-            request.AddJsonBody(pinVerification);
 
-            var response = client.Execute<SubscriptionResponseModel>(request);
+            var response = request.RequestApi<PinVerificationModel, SubscriptionResponseModel>(pinVerification, request.GetCommonHeaders(AuthModel.AccessToken), null, Method.POST, IdeaMartPinValidateEndPoint);
 
             var res = new ActivityResult();
 
-            if (response.Data.StatusCode == "SUCCESS")
+            if (response.StatusCode == IdeaBizResource.SUCCESS)
             {
-                res.Status = response.Data.StatusCode;
-                res.ServerRef = response.Data.Data.ServerRef;
+                res.Status = response.StatusCode;
+                res.ServerRef = response.Data.ServerRef;
             }
             else
             {
-                res.Status = response.Data.Message;
-
+                res.Status = response.Message;
             }
             return res;
         }

@@ -21,7 +21,7 @@ namespace Codezync.IdeaBizClient
 
         protected RestClient client;
 
-        public IdeaMartAuthModel AuthModel;
+        protected IdeaMartAuthModel AuthModel;
 
         public IdeaBizClientBase()
         {

@@ -1,4 +1,5 @@
 ﻿using Codezync.IdeaBizClient.Models;
+using IdeaBizSms;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -15,26 +16,24 @@ namespace Codezync.IdeaBizClient.Services
         private string IdeaMartSmsEndPoint;
         private string IdearMartSenderName;
         private string IdearMartSenderAddress;
+        private ApiRequestGenarator request;
         public SmsClient()
         {
             IdeaMartSmsEndPoint = ConfigurationManager.AppSettings["IdeaMartSmsEndPoint"];
             IdearMartSenderName = ConfigurationManager.AppSettings["IdearMartSenderName"];
             IdearMartSenderAddress = ConfigurationManager.AppSettings["IdearMartSenderAddress"];
+            request = new ApiRequestGenarator(IdeaMartApiCallbase);
         }
         public bool SendSms(string number, string message)
         {
             Authenticate();
+
             var smsSubscription = new SMSSubcriptionService();
             var IsSubscribed = smsSubscription.Subscribe(number);
             var flag = false;
 
             if (AuthModel != null)
             {
-                var token = AuthModel.AccessToken;
-                var request = new RestRequest(IdeaMartSmsEndPoint.Replace("{port}", "87711"), Method.POST);
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("Authorization", $"Bearer {token}");
-
                 try
                 {
                     var smsRequest = new SmsRequestModel
@@ -53,11 +52,11 @@ namespace Codezync.IdeaBizClient.Services
                         }
                     }
                     };
-                    request.JsonSerializer = new CustomJsonSerializer();
-                    request.AddJsonBody(smsRequest);
-                    var response = client.Execute<SmsResponseModel>(request);
-                    var test = response.Data.Fault;
-                    if (response.Data.Fault == null)
+
+                    var response = request.RequestApi<SmsRequestModel, SmsResponseModel>(smsRequest, request.GetCommonHeaders(AuthModel.AccessToken), null, Method.POST, IdeaMartSmsEndPoint.Replace("{port}", "87711"));
+
+                    var test = response.Fault;
+                    if (response.Fault == null)
                     {
                         flag = true;
                     }
@@ -67,7 +66,7 @@ namespace Codezync.IdeaBizClient.Services
                 catch (System.Exception)
                 {
                     throw;
-                    flag = false;
+                 
                 }
 
             }

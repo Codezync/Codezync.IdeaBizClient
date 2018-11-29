@@ -1,4 +1,6 @@
 ﻿using Codezync.IdeaBizClient.Models;
+using Codezync.IdeaBizClient.Properties;
+using IdeaBizSms;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -17,20 +19,18 @@ namespace Codezync.IdeaBizClient
         protected string IdeaMartApiSmsSubscription { get; }
         protected string IdeaMartApiSmsUnSubscription { get; }
 
+        private ApiRequestGenarator request;
         public SMSSubcriptionService()
         {
             IdeaMartApiSmsSubscription = ConfigurationManager.AppSettings["IdeaMartApiSmsSubscription"];
             IdeaMartApiSmsUnSubscription = ConfigurationManager.AppSettings["IdeaMartApiSmsUnSubscription"];
+            request = new ApiRequestGenarator(IdeaMartApiCallbase);
             Authenticate();
         }
 
         public bool Subscribe(string number, string subscriptionMethod = SUBSCRIPTION_METHOD, string serviceID = null)
         {
             var flag = false;
-            var request = new RestRequest(IdeaMartApiSmsSubscription, Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Authorization", $"Bearer {AuthModel.AccessToken}");
-            request.AddHeader("Accept", "application/json");
 
             var subscriptionRequest = new SubscriptionRequestModel
             {
@@ -39,11 +39,10 @@ namespace Codezync.IdeaBizClient
                 Msisdn = "tel:+" + number
             };
 
-            request.JsonSerializer = new CustomJsonSerializer();
-            request.AddJsonBody(subscriptionRequest);
-            var response = client.Execute<SubscriptionResponseModel>(request);
+            var response = request.RequestApi<SubscriptionRequestModel, SubscriptionResponseModel>(subscriptionRequest, request.GetCommonHeaders(AuthModel.AccessToken), null, Method.POST, IdeaMartApiSmsSubscription);
 
-            if (response.Data.StatusCode == "SUCCESS")
+
+            if (response.StatusCode == IdeaBizResource.SUCCESS)
             {
                 flag = true;
             }
@@ -54,10 +53,6 @@ namespace Codezync.IdeaBizClient
         public bool UnSubscribe(string number, string subscriptionMethod = SUBSCRIPTION_METHOD, string serviceID = null)
         {
             var flag = false;
-            var request = new RestRequest(IdeaMartApiSmsUnSubscription, Method.POST);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Authorization", $"Bearer {AuthModel.AccessToken}");
-            request.AddHeader("Accept", "application/json");
 
             var subscriptionRequest = new SubscriptionRequestModel
             {
@@ -66,12 +61,10 @@ namespace Codezync.IdeaBizClient
                 Msisdn = "tel:+" + number
             };
 
-            request.JsonSerializer = new CustomJsonSerializer();
-            request.AddJsonBody(subscriptionRequest);
-            //var response = client.Execute(request);
-            var response = client.Execute<SubscriptionResponseModel>(request);
+            var response = request.RequestApi<SubscriptionRequestModel, SubscriptionResponseModel>(subscriptionRequest, request.GetCommonHeaders(AuthModel.AccessToken), null, Method.POST, IdeaMartApiSmsUnSubscription);
 
-            if (response.Data.StatusCode == "SUCCESS")
+
+            if (response.StatusCode == IdeaBizResource.SUCCESS)
             {
                 flag = true;
             }
